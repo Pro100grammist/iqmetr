@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Старт — iqmetr{% endblock %}
+{% block content %}
+  <h1>Почнімо тест</h1>
+  <form method="post" class="grid" style="max-width:400px;">{% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn" type="submit">Далі</button>
+  </form>
+{% endblock %}
+{% block scripts %}
+<script>
+  // На старті прогрес і таймер неактивні
+  document.getElementById('progress-inner').style.width = '0%';
+  document.getElementById('progress-text').textContent = '0 / 30';
+  document.getElementById('timer').textContent = '--:--';
+</script>
+{% endblock %}

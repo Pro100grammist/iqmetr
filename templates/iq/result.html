@@ -1,0 +1,40 @@
+<!-- templates/iq/result.html -->
+{% extends "base.html" %}
+{% block title %}Результат — iqmetr{% endblock %}
+{% block content %}
+  <h1>Результат</h1>
+  <p><strong>Учасник:</strong> {{ session.name }}, {{ session.age }} років</p>
+  <p><strong>Підсумковий бал:</strong> {{ total }}</p>
+
+  <h2>Протокол</h2>
+  <ol>
+    {% for row in rows %}
+      <li>
+        <div class="question">
+          <div><strong>{{ row.q.text }}</strong></div>
+          <div>
+            {% if row.selected %}
+              Ваша відповідь: “{{ row.selected.text }}” —
+              {% if row.is_correct %}<span class="ok">правильно</span>{% else %}<span class="bad">помилка</span>{% endif %},
+              бал: {{ row.score }}
+            {% else %}
+              <span class="bad">Не обрано</span>, бал: 0.00
+            {% endif %}
+          </div>
+          <div class="muted">Правильна відповідь: “{{ row.correct_answer.text }}”</div>
+          <div class="muted">Складність: {{ row.q.get_difficulty_display }} (вага {{ row.q.score }})</div>
+        </div>
+      </li>
+    {% endfor %}
+  </ol>
+
+  <a class="btn" href="{% url 'start' %}">Пройти ще раз</a>
+{% endblock %}
+{% block scripts %}
+<script>
+  // На екрані результату прогрес = 100%, таймер порожній
+  document.getElementById('progress-inner').style.width = '100%';
+  document.getElementById('progress-text').textContent = '{{ rows|length }} / {{ rows|length }}';
+  document.getElementById('timer').textContent = '--:--';
+</script>
+{% endblock %}
