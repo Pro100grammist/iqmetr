@@ -1,10 +1,13 @@
-# iq/views.py
+import random
+import json
+
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.db import transaction
 from django.utils import timezone
 from decimal import Decimal
-import random
 
 from .forms import StartForm
 from .models import Question, Answer, TestSession, Response
@@ -79,7 +82,11 @@ def test_view(request, session_uuid):
     ordered_questions = [q_map[qid] for qid in session.question_ids if qid in q_map]
 
     if request.method == "POST":
-        # приймаємо відповіді формату answer_<question_id> = <answer_id>
+        # ↙️ повторна перевірка, якщо пакет приповз після дедлайну
+        elapsed = (timezone.now() - session.started_at).total_seconds()
+        if elapsed >= TEST_DURATION_SECONDS:
+            return redirect("finish", session_uuid=session.uuid)
+
         with transaction.atomic():
             total = Decimal("0.00")
             for q in ordered_questions:
@@ -103,7 +110,6 @@ def test_view(request, session_uuid):
                 )
                 total += score
 
-            # Якщо натиснули "Завершити" — або авто-фініш
             if "finish_now" in request.POST:
                 session.total_score = total
                 session.finished_at = timezone.now()
@@ -113,7 +119,6 @@ def test_view(request, session_uuid):
                 )
                 return redirect("result", session_uuid=session.uuid)
 
-        # Інакше залишаємося на сторінці (наприклад, авто-збереження відповідей)
         return redirect("test", session_uuid=session.uuid)
 
     return render(
@@ -179,4 +184,50 @@ def result(request, session_uuid):
             "rows": rows,
             "total": session.total_score,
         },
+    )
+
+
+@require_POST
+def autosave(request, session_uuid):
+    session = get_object_or_404(TestSession, uuid=session_uuid, is_completed=False)
+    elapsed = (timezone.now() - session.started_at).total_seconds()
+    if elapsed >= TEST_DURATION_SECONDS:
+        return JsonResponse({"ok": False, "reason": "timeout"}, status=400)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+        qid = int(payload.get("question_id"))
+        aid = int(payload.get("answer_id")) if payload.get("answer_id") else None
+    except Exception:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    q = Question.objects.filter(id=qid).first()
+    if not q or q.id not in session.question_ids:
+        return JsonResponse({"ok": False, "reason": "bad_question"}, status=400)
+
+    selected = Answer.objects.filter(id=aid, question=q).first() if aid else None
+    correct = bool(selected and selected.is_correct)
+    score = q.score if correct else Decimal("0.00")
+
+    with transaction.atomic():
+        Response.objects.update_or_create(
+            session=session,
+            question=q,
+            defaults={
+                "selected_answer": selected,
+                "is_correct": correct,
+                "score_awarded": score,
+            },
+        )
+
+    answered_count = session.responses.exclude(selected_answer__isnull=True).count()
+    remaining = max(
+        0,
+        int(
+            TEST_DURATION_SECONDS
+            - (timezone.now() - session.started_at).total_seconds()
+        ),
+    )
+    return JsonResponse(
+        {"ok": True, "answered": answered_count, "remaining": remaining}
     )

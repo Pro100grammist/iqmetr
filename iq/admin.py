@@ -1,11 +1,30 @@
-# iq/admin.py
 from django.contrib import admin
+from django.forms.models import BaseInlineFormSet
+from django.core.exceptions import ValidationError
 from .models import Question, Answer, TestSession, Response
+
+
+class AnswerInlineFormset(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        not_deleted = [f for f in self.forms if not f.cleaned_data.get("DELETE", False)]
+        total = len(not_deleted)
+        correct = sum(1 for f in not_deleted if f.cleaned_data.get("is_correct"))
+        if total != 4:
+            raise ValidationError("Має бути рівно 4 варіанти відповіді.")
+        if correct != 1:
+            raise ValidationError("Має бути рівно 1 правильна відповідь.")
 
 
 class AnswerInline(admin.TabularInline):
     model = Answer
-    extra = 0
+    formset = AnswerInlineFormset
+    extra = 4
+    min_num = 4
+    max_num = 4
+    validate_min = True
+    validate_max = True
+    can_delete = True
 
 
 @admin.register(Question)

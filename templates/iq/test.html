@@ -26,51 +26,78 @@
 {% endblock %}
 {% block scripts %}
 <script>
-  // Таймер
+  // === Таймер ===
   let remaining = {{ remaining|default:0 }};
   const timerEl = document.getElementById('timer');
   const form = document.getElementById('test-form');
 
   function tick() {
     if (remaining <= 0) {
-      // Автофініш
       const fin = document.createElement('input');
-      fin.type = 'hidden';
-      fin.name = 'finish_now';
-      fin.value = '1';
-      form.appendChild(fin);
-      form.submit();
-      return;
+      fin.type = 'hidden'; fin.name = 'finish_now'; fin.value = '1';
+      form.appendChild(fin); form.submit(); return;
     }
     const m = Math.floor(remaining / 60).toString().padStart(2,'0');
     const s = (remaining % 60).toString().padStart(2,'0');
-    timerEl.textContent = `${m}:${s}`;
-    remaining--;
-    setTimeout(tick, 1000);
+    timerEl.textContent = `${m}:${s}`; remaining--; setTimeout(tick, 1000);
   }
   tick();
 
-  // Прогрес: лічимо скільки питань уже з відповіддю
+  // === Прогрес ===
   const total = {{ total_questions }};
   const inner = document.getElementById('progress-inner');
   const text = document.getElementById('progress-text');
-
   function updateProgress() {
     const answered = new Set();
     document.querySelectorAll('.question').forEach(q => {
       const qid = q.getAttribute('data-qid');
-      const checked = q.querySelector('input[type=radio]:checked');
-      if (checked) answered.add(qid);
+      if (q.querySelector('input[type=radio]:checked')) answered.add(qid);
     });
     const done = answered.size;
-    const pct = Math.round((done / total) * 100);
-    inner.style.width = pct + '%';
+    inner.style.width = Math.round((done / total) * 100) + '%';
     text.textContent = `${done} / ${total}`;
   }
 
+  // === CSRF ===
+  function getCookie(name) {
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  // === Дебаунс автосейв ===
+  let t = null;
+  function autosave(qid, aid) {
+    clearTimeout(t);
+    t = setTimeout(() => {
+      fetch("{% url 'autosave' session.uuid %}", {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+        body: JSON.stringify({question_id: qid, answer_id: aid})
+      }).then(r => r.json()).then(data => {
+        if (data.ok) {
+          // оновимо прогрес і (опційно) залишок часу, якщо хочеш
+          updateProgress();
+        }
+      }).catch(() => {});
+    }, 200); // 200мс
+  }
+
   document.querySelectorAll('input[type=radio]').forEach(i => {
-    i.addEventListener('change', updateProgress);
+    i.addEventListener('change', e => {
+      updateProgress();
+      const q = e.target.closest('.question');
+      const qid = q.getAttribute('data-qid');
+      const aid = e.target.value;
+      autosave(qid, aid);
+    });
   });
   updateProgress();
+
+  // Попередження при випадковому виході, якщо не завершено
+  window.addEventListener('beforeunload', function (e) {
+    e.preventDefault();
+    e.returnValue = '';
+  });
 </script>
 {% endblock %}

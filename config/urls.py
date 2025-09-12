@@ -9,4 +9,5 @@ urlpatterns = [
     path("test/<uuid:session_uuid>/", iq_views.test_view, name="test"),
     path("finish/<uuid:session_uuid>/", iq_views.finish, name="finish"),
     path("result/<uuid:session_uuid>/", iq_views.result, name="result"),
+    path("autosave/<uuid:session_uuid>/", iq_views.autosave, name="autosave"),
 ]
