@@ -1,21 +1,28 @@
 {% extends "base.html" %}
 {% load static %}
+{% block head %}
+  <style>.testbar { display: none; }</style>
+{% endblock %}
 {% block title %}Правила — iqmetr{% endblock %}
 {% block content %}
-  <h1>Правила складання тесту</h1>
-  <div id="iq-rules" data-duration="{{ duration|default:1200 }}"></div>
-  <ul>
-    <li>30 запитань, 20 хвилин.</li>
-    <li>1 правильна відповідь із 4, інші — дистрактори.</li>
-    <li>Бали: просте — 1.22, середнє — 1.55, складне — 2.16.</li>
-    <li>Під час тесту бали/правильність не показуються.</li>
-    <li>Невідповідь = 0 балів.</li>
-  </ul>
-  {% if error %}<p class="bad">{{ error }}</p>{% endif %}
-  <form method="post">{% csrf_token %}
-    <button class="btn" type="submit">Почати</button>
-  </form>
+  <h1 class="page-title">Правила складання тесту</h1>
+
+  <section class="card centered stack-md">
+    <div id="iq-rules" data-duration="{{ duration|default:1200 }}"></div>
+    <ul class="stack-sm">
+      <li>30 запитань, 20 хвилин.</li>
+      <li>1 правильна відповідь із 4, інші — дистрактори.</li>
+      <li>Бали: просте — 1.22, середнє — 1.55, складне — 2.16.</li>
+      <li>Під час тесту бали/правильність не показуються.</li>
+      <li>Невідповідь = 0 балів.</li>
+    </ul>
+    {% if error %}<p class="bad">{{ error }}</p>{% endif %}
+    <form method="post">{% csrf_token %}
+      <button class="btn" type="submit">Почати</button>
+    </form>
+  </section>
 {% endblock %}
 {% block scripts %}
   <script src="{% static 'js/rules.js' %}"></script>
 {% endblock %}
+

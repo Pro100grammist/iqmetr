@@ -1,18 +1,20 @@
 {% extends "base.html" %}
+{% load iq_extras %}
 {% load static %}
 {% block title %}Тест — iqmetr{% endblock %}
 {% block content %}
-  <h1>Тест</h1>
+  <h1 class="page-title">Тест</h1>
 
   <div id="iq-test"
        data-remaining="{{ remaining|default:0 }}"
        data-total="{{ total_questions }}"
        data-autosave="{% url 'autosave' session.uuid %}"></div>
 
-  <form method="post" id="test-form">{% csrf_token %}
+  <form method="post" id="test-form" class="section">{% csrf_token %}
     {% for q in questions %}
-      <div class="question" data-qid="{{ q.id }}">
-        <strong>#{{ forloop.counter }}.</strong> {{ q.text }}
+      <article class="question" data-qid="{{ q.id }}">
+        <strong>#{{ forloop.counter }}.</strong> {{ q.text|format_question }}
+
         <div class="answers">
           {% if q.ordered_answers %}
             {% for a in q.ordered_answers %}
@@ -24,14 +26,16 @@
             {% endfor %}
           {% endif %}
         </div>
-      </div>
+      </article>
     {% endfor %}
 
-    <div style="display:flex; gap:10px; margin-top:16px;">
+    <div class="actions">
       <button class="btn" type="submit" name="finish_now" value="1">Завершити тест</button>
       <button class="btn secondary" type="submit">Зберегти проміжні відповіді</button>
+      <a class="btn ghost" href="{% url 'rules' %}">Назад до правил</a>
     </div>
   </form>
+
   <p class="muted">Ви можете зберігати відповіді під час проходження. Після завершення результат буде підраховано.</p>
 {% endblock %}
 {% block scripts %}

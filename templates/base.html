@@ -9,16 +9,43 @@
   {% block head %}{% endblock %}
 </head>
 <body>
-<header>
+
+<!-- Top site header (brand + nav) -->
+<header class="site-header">
+  <div class="inner">
+    <div class="brand">🧠 iqmetr</div>
+    <nav class="nav">
+      <a href="{% url 'start' %}">Головна</a>
+      <a href="{% url 'rules' %}">Правила</a>
+      <a href="/admin/">Адмінка</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Test progress/timer header -->
+<header class="testbar">
   <div class="progress-wrap">
     <div class="bar"><div id="progress-inner"></div></div>
     <small id="progress-text" class="muted">0 / 30</small>
   </div>
   <div class="timer">⏳ <span id="timer">--:--</span></div>
 </header>
-<div class="container">
+
+<main class="container">
   {% block content %}{% endblock %}
-</div>
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <small>© {{ now|date:"Y" }} iqmetr 2025. Created on Django. Developed by Oleh Sencha. </small>
+    <div class="links"> 
+      <a href="#">Політика приватності</a>
+      <a href="#">Умови</a>
+      <a href="mailto:hello@example.com">Контакти</a>
+    </div>
+  </div>
+</footer>
+
 {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,19 +1,24 @@
 {% extends "base.html" %}
 {% load static %}
+{% block head %}
+  <style>.testbar { display: none; }</style>
+{% endblock %}
 {% block title %}Результат — iqmetr{% endblock %}
 {% block content %}
-  <h1>Результат</h1>
-  <div id="iq-result-metrics" data-count="{{ rows|length }}"></div>
+  <h1 class="page-title">Результат</h1>
 
-  <p><strong>Учасник:</strong> {{ session.name }}, {{ session.age }} років</p>
-  <p><strong>Підсумковий бал:</strong> {{ total }}</p>
-  <p class="muted">Втрат фокуса вкладки: {{ session.meta.focus_loss|default:"0" }}</p>
+  <section class="card stack-md">
+    <div id="iq-result-metrics" data-count="{{ rows|length }}"></div>
+    <p><strong>Учасник:</strong> {{ session.name }}, {{ session.age }} років</p>
+    <p><strong>Підсумковий бал:</strong> {{ total }}</p>
+    <p class="muted">Втрат фокуса вкладки: {{ session.meta.focus_loss|default:"0" }}</p>
+  </section>
 
-  <h2>Протокол</h2>
-  <ol>
+  <h2 class="section">Протокол</h2>
+  <ol class="section">
     {% for row in rows %}
       <li>
-        <div class="question">
+        <article class="question">
           <div><strong>{{ row.q.text }}</strong></div>
           <div>
             {% if row.selected %}
@@ -26,12 +31,14 @@
           </div>
           <div class="muted">Правильна відповідь: “{{ row.correct_answer.text }}”</div>
           <div class="muted">Складність: {{ row.q.get_difficulty_display }} (вага {{ row.q.score }})</div>
-        </div>
+        </article>
       </li>
     {% endfor %}
   </ol>
 
-  <a class="btn secondary" href="{% url 'start' %}">Пройти ще раз</a>
+  <div class="section">
+    <a class="btn secondary" href="{% url 'start' %}">Пройти ще раз</a>
+  </div>
 {% endblock %}
 {% block scripts %}
   <script src="{% static 'js/result.js' %}"></script>

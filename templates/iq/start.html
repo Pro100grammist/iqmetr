@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 {% load static %}
+{% block head %}
+  <style>.testbar { display: none; }</style>
+{% endblock %}
 {% block title %}Старт — iqmetr{% endblock %}
 {% block content %}
-  <h1>Почнімо тест</h1>
-  <form method="post" class="grid" style="max-width:420px;">{% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn" type="submit">Далі</button>
-  </form>
+  <h1 class="page-title">Тест когнітивних здібностей</h1>
+  <section class="card centered stack-md">
+    <form method="post" class="grid">{% csrf_token %}
+      {{ form.as_p }}
+      <div class="stack-sm">
+        <button class="btn" type="submit">Далі</button>
+        <p class="muted">Ваші дані потрібні для протоколу результатів.</p>
+      </div>
+    </form>
+  </section>
 {% endblock %}
 {% block scripts %}
   <script src="{% static 'js/start.js' %}"></script>
