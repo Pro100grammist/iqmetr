@@ -1,10 +1,13 @@
-<!-- templates/iq/result.html -->
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Результат — iqmetr{% endblock %}
 {% block content %}
   <h1>Результат</h1>
+  <div id="iq-result-metrics" data-count="{{ rows|length }}"></div>
+
   <p><strong>Учасник:</strong> {{ session.name }}, {{ session.age }} років</p>
   <p><strong>Підсумковий бал:</strong> {{ total }}</p>
+  <p class="muted">Втрат фокуса вкладки: {{ session.meta.focus_loss|default:"0" }}</p>
 
   <h2>Протокол</h2>
   <ol>
@@ -28,13 +31,8 @@
     {% endfor %}
   </ol>
 
-  <a class="btn" href="{% url 'start' %}">Пройти ще раз</a>
+  <a class="btn secondary" href="{% url 'start' %}">Пройти ще раз</a>
 {% endblock %}
 {% block scripts %}
-<script>
-  // На екрані результату прогрес = 100%, таймер порожній
-  document.getElementById('progress-inner').style.width = '100%';
-  document.getElementById('progress-text').textContent = '{{ rows|length }} / {{ rows|length }}';
-  document.getElementById('timer').textContent = '--:--';
-</script>
+  <script src="{% static 'js/result.js' %}"></script>
 {% endblock %}

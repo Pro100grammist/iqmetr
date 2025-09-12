@@ -1,22 +1,32 @@
-<!-- templates/iq/test.html -->
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Тест — iqmetr{% endblock %}
 {% block content %}
   <h1>Тест</h1>
+
+  <div id="iq-test"
+       data-remaining="{{ remaining|default:0 }}"
+       data-total="{{ total_questions }}"
+       data-autosave="{% url 'autosave' session.uuid %}"></div>
+
   <form method="post" id="test-form">{% csrf_token %}
     {% for q in questions %}
       <div class="question" data-qid="{{ q.id }}">
         <strong>#{{ forloop.counter }}.</strong> {{ q.text }}
         <div class="answers">
-          {% for a in q.answers.all %}
-            <label>
-              <input type="radio" name="answer_{{ q.id }}" value="{{ a.id }}">
-              {{ a.text }}
-            </label>
-          {% endfor %}
+          {% if q.ordered_answers %}
+            {% for a in q.ordered_answers %}
+              <label><input type="radio" name="answer_{{ q.id }}" value="{{ a.id }}"> {{ a.text }}</label>
+            {% endfor %}
+          {% else %}
+            {% for a in q.answers.all %}
+              <label><input type="radio" name="answer_{{ q.id }}" value="{{ a.id }}"> {{ a.text }}</label>
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
     {% endfor %}
+
     <div style="display:flex; gap:10px; margin-top:16px;">
       <button class="btn" type="submit" name="finish_now" value="1">Завершити тест</button>
       <button class="btn secondary" type="submit">Зберегти проміжні відповіді</button>
@@ -25,79 +35,5 @@
   <p class="muted">Ви можете зберігати відповіді під час проходження. Після завершення результат буде підраховано.</p>
 {% endblock %}
 {% block scripts %}
-<script>
-  // === Таймер ===
-  let remaining = {{ remaining|default:0 }};
-  const timerEl = document.getElementById('timer');
-  const form = document.getElementById('test-form');
-
-  function tick() {
-    if (remaining <= 0) {
-      const fin = document.createElement('input');
-      fin.type = 'hidden'; fin.name = 'finish_now'; fin.value = '1';
-      form.appendChild(fin); form.submit(); return;
-    }
-    const m = Math.floor(remaining / 60).toString().padStart(2,'0');
-    const s = (remaining % 60).toString().padStart(2,'0');
-    timerEl.textContent = `${m}:${s}`; remaining--; setTimeout(tick, 1000);
-  }
-  tick();
-
-  // === Прогрес ===
-  const total = {{ total_questions }};
-  const inner = document.getElementById('progress-inner');
-  const text = document.getElementById('progress-text');
-  function updateProgress() {
-    const answered = new Set();
-    document.querySelectorAll('.question').forEach(q => {
-      const qid = q.getAttribute('data-qid');
-      if (q.querySelector('input[type=radio]:checked')) answered.add(qid);
-    });
-    const done = answered.size;
-    inner.style.width = Math.round((done / total) * 100) + '%';
-    text.textContent = `${done} / ${total}`;
-  }
-
-  // === CSRF ===
-  function getCookie(name) {
-    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return m ? m.pop() : '';
-  }
-  const csrftoken = getCookie('csrftoken');
-
-  // === Дебаунс автосейв ===
-  let t = null;
-  function autosave(qid, aid) {
-    clearTimeout(t);
-    t = setTimeout(() => {
-      fetch("{% url 'autosave' session.uuid %}", {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({question_id: qid, answer_id: aid})
-      }).then(r => r.json()).then(data => {
-        if (data.ok) {
-          // оновимо прогрес і (опційно) залишок часу, якщо хочеш
-          updateProgress();
-        }
-      }).catch(() => {});
-    }, 200); // 200мс
-  }
-
-  document.querySelectorAll('input[type=radio]').forEach(i => {
-    i.addEventListener('change', e => {
-      updateProgress();
-      const q = e.target.closest('.question');
-      const qid = q.getAttribute('data-qid');
-      const aid = e.target.value;
-      autosave(qid, aid);
-    });
-  });
-  updateProgress();
-
-  // Попередження при випадковому виході, якщо не завершено
-  window.addEventListener('beforeunload', function (e) {
-    e.preventDefault();
-    e.returnValue = '';
-  });
-</script>
+  <script src="{% static 'js/test.js' %}"></script>
 {% endblock %}

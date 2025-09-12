@@ -1,7 +1,9 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Правила — iqmetr{% endblock %}
 {% block content %}
   <h1>Правила складання тесту</h1>
+  <div id="iq-rules" data-duration="{{ duration|default:1200 }}"></div>
   <ul>
     <li>30 запитань, 20 хвилин.</li>
     <li>1 правильна відповідь із 4, інші — дистрактори.</li>
@@ -15,9 +17,5 @@
   </form>
 {% endblock %}
 {% block scripts %}
-<script>
-  document.getElementById('progress-inner').style.width = '0%';
-  document.getElementById('progress-text').textContent = '0 / 30';
-  document.getElementById('timer').textContent = '20:00';
-</script>
+  <script src="{% static 'js/rules.js' %}"></script>
 {% endblock %}
