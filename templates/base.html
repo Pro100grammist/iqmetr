@@ -6,6 +6,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{% block title %}iqmetr{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <script>
+    (function() {
+      function setHeaderHeight() {
+        var sh = document.querySelector('.site-header');
+        var h = sh ? sh.offsetHeight : 0;
+        document.documentElement.style.setProperty('--site-header-h', h + 'px');
+      }
+      window.addEventListener('load', setHeaderHeight);
+      window.addEventListener('resize', setHeaderHeight);
+    })();
+  </script>
   {% block head %}{% endblock %}
 </head>
 <body>

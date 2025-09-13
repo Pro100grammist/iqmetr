@@ -88,7 +88,7 @@ main.container {
     background: #0f172a;
     color: #fff;
     position: sticky;
-    top: 48px;
+    top: var(--site-header-h, 48px);
     z-index: 15;
 }
 
