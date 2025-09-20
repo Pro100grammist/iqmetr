@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from iq import views as iq_views
 
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     path("finish/<uuid:session_uuid>/", iq_views.finish, name="finish"),
     path("result/<uuid:session_uuid>/", iq_views.result, name="result"),
     path("autosave/<uuid:session_uuid>/", iq_views.autosave, name="autosave"),
+    path("m/", include("metrics.urls")),  # endpoint: /m/collect
 ]

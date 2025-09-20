@@ -11,6 +11,8 @@ from decimal import Decimal
 
 from .forms import StartForm
 from .models import Question, Answer, TestSession, Response
+from metrics.models import TestCompletion
+from metrics.utils import ip_hash as ip_hash_fn
 
 TEST_QUESTION_COUNT = 30
 TEST_DURATION_SECONDS = 20 * 60  # 20 хвилин
@@ -114,9 +116,28 @@ def test_view(request, session_uuid):
                 session.total_score = total
                 session.finished_at = timezone.now()
                 session.is_completed = True
-                session.save(
-                    update_fields=["total_score", "finished_at", "is_completed"]
-                )
+                session.save(update_fields=["total_score", "finished_at", "is_completed"])
+                duration = int((session.finished_at - session.started_at).total_seconds())
+
+                try:
+                    visitor = getattr(request, "visitor", None)
+                    TestCompletion.objects.create(
+                        session_uuid=session.uuid,
+                        visitor=visitor,
+                        name=session.name,
+                        age=session.age,
+                        total_score=session.total_score,
+                        question_count=len(session.question_ids or []),
+                        started_at=session.started_at,
+                        finished_at=session.finished_at,
+                        duration_seconds=duration,
+                        focus_loss=(session.meta or {}).get("focus_loss", 0),
+                        user_agent=request.META.get("HTTP_USER_AGENT","")[:400],
+                        ip_hash=ip_hash_fn(request),
+                    )
+                except Exception:
+                    pass
+
                 return redirect("result", session_uuid=session.uuid)
 
         return redirect("test", session_uuid=session.uuid)
