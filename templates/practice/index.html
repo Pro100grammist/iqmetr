@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Тренажер — вибір спеціалізації{% endblock %}
+
+{% block head %}
+  <!-- Pico CSS (лише для цієї сторінки) -->
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css">
+  <!-- На цій сторінці таймер/прогрес не потрібні -->
+  <style>.testbar { display: none; }</style>
+{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">Тренажер практичного завдання</h1>
+
+  <article class="card container-narrow">
+    <p>Оберіть спеціалізацію та заповніть дані учасника. Тривалість — 180 хв.</p>
+
+    <!-- Одна форма, два напрями відправки через formaction -->
+    <form method="get" class="grid">
+      <label>
+        Ім’я
+        <input name="name" type="text" required placeholder="Ваше ім’я">
+      </label>
+      <label>
+        Вік
+        <input name="age" type="number" min="18" max="99" required placeholder="18">
+      </label>
+
+      <div class="actions align-end">
+        <button class="contrast" type="submit" formaction="{% url 'practice_start' 'civil' %}">Почати (цивільна)</button>
+        <button class="secondary" type="submit" formaction="{% url 'practice_start' 'criminal' %}">Почати (кримінальна)</button>
+      </div>
+    </form>
+
+    <details>
+      <summary>Що входить до завдання?</summary>
+      <ul>
+        <li><strong>Цивільна:</strong> вступна, описова та частково мотивувальна частини модельного рішення.</li>
+        <li><strong>Кримінальна:</strong> фабула + модельна вступна частина вироку.</li>
+        <li>Потрібно викласти мотивувальну та резолютивну частини, дотримуючись структури.</li>
+        <li>Автозбереження в реальному часі. Вставка тексту відключена.</li>
+      </ul>
+    </details>
+  </article>
+{% endblock %}

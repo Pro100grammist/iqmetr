@@ -11,4 +11,5 @@ urlpatterns = [
     path("result/<uuid:session_uuid>/", iq_views.result, name="result"),
     path("autosave/<uuid:session_uuid>/", iq_views.autosave, name="autosave"),
     path("m/", include("metrics.urls")),  # endpoint: /m/collect
+    path("practice/", include("practice.urls")),
 ]

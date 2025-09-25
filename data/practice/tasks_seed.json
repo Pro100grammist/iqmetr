@@ -1,0 +1,29 @@
+[
+  {
+    "spec": "civil",
+    "title": "Цивільна справа №1 (стягнення аліментів)",
+    "intro_text": "data/content/civil/case_001/intro.txt",
+    "descriptive_text": "data/content/civil/case_001/descriptive.txt",
+    "partial_motivation_text": "data/content/civil/case_001/partial_motivation.txt",
+    "decisions_json": {
+      "first": "data/decisions/case_001/first.txt",
+      "appeal": "data/decisions/case_001/appeal.txt",
+      "cassation": "data/decisions/case_001/cassation.txt"
+    },
+    "is_active": true,
+    "max_score": 75
+  },
+  {
+    "spec": "criminal",
+    "title": "ЗРАЗОК ПРАКТИЧНОГО ЗАВДАННЯ № 16 (кримінальна спеціалізація)\n справа про розмежування замаху на вбивство ( ч.3 ст.15, ч.1 ст.115 КК) від нанесення тяжкого тілесного ушкодження ( ч.1 ст.121 КК)",
+    "facts_text": "data/content/criminal/case_016/facts.txt",
+    "model_intro_text": "data/content/criminal/case_016/model_intro.txt",
+    "decisions_json": {
+      "first": "data/decisions/case_016/first.txt",
+      "appeal": "data/decisions/case_016/appeal.txt",
+      "cassation": "data/decisions/case_016/cassation.txt"
+    },
+    "is_active": true,
+    "max_score": 75
+  }
+]

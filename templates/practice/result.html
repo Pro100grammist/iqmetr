@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+{% load practice_extras %}
+{% block title %}Тренажер — результат{% endblock %}
+
+{% block head %}
+  <!-- Pico CSS лише для цієї сторінки -->
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css">
+  <style>
+    .testbar { display: none; }             /* ховаємо панель прогресу */
+    .meta-grid { display: grid; gap: .5rem; grid-template-columns: 1fr 2fr; }
+    pre { white-space: pre-wrap; }
+    .score-table { width: 100%; }
+    .score-table th, .score-table td { text-align: left; }
+    .status-pill { display:inline-block; padding:.2rem .5rem; border-radius:999px; background:#eef2ff; }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">Результат практичного завдання</h1>
+
+  <!-- Підсумок сесії -->
+  <article class="card">
+    <header><strong>Сесія</strong></header>
+    <div class="meta-grid">
+      <div>Учасник</div><div>{{ s.name }}, {{ s.age }} років</div>
+      <div>Спеціалізація</div><div>{{ s.get_spec_display }}</div>
+      <div>Початок</div><div>{{ s.started_at|date:"Y-m-d H:i" }}</div>
+      <div>Завершено</div>
+      <div>
+        {% if s.finished_at %}
+          {{ s.finished_at|date:"Y-m-d H:i" }}
+        {% else %}<em>ще триває</em>{% endif %}
+      </div>
+      <div>Тривалість</div>
+      <div>
+        {% if s.finished_at %}
+          {{ s.finished_at|timesince:s.started_at }}
+        {% else %}—{% endif %}
+      </div>
+      <div>Натискань клавіш</div><div>{{ s.keypress_count }}</div>
+      <div>Блоковано вставок</div><div>{{ s.paste_blocked }}</div>
+    </div>
+  </article>
+
+  <!-- Оцінювання AI -->
+  <article class="card">
+    <header><strong>Оцінювання</strong></header>
+
+    {% if ev %}
+      <p>Статус: <span class="status-pill">{{ ev.get_status_display|default:ev.status }}</span></p>
+
+      {% if ev.status == "done" %}
+        <p><strong>Підсумковий бал:</strong> {{ ev.total }} / {{ s.task.max_score }}</p>
+
+        {% if ev.scores.groups %}
+          {% for g in ev.scores.groups %}
+            <h4 style="margin-top:1rem">{{ g.title }} — {{ g.score }} / {{ g.max }}</h4>
+            <table class="score-table">
+              <thead>
+                <tr><th>Критерій</th><th>Бал</th><th>Пояснення зняття балів</th></tr>
+              </thead>
+              <tbody>
+                {% for c in g.criteria %}
+                  <tr>
+                    <td>{{ c.title }}</td>
+                    <td>{{ c.score }} / {{ c.max }}</td>
+                    <td>{{ c.deductions|default:'' }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
+        {% elif ev.scores %}
+          <table class="score-table">
+            <thead>
+              <tr><th>Критерій</th><th>Бал</th></tr>
+            </thead>
+            <tbody>
+              {% for key, val in ev.scores.items %}
+                <tr><td>{{ key }}</td><td>{{ val }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+        {% if ev.feedback %}
+          <blockquote>{{ ev.feedback|linebreaksbr }}</blockquote>
+        {% endif %}
+
+        <div class="actions align-end">
+          <a href="{% url 'practice_index' %}" class="secondary">Нове завдання</a>
+        </div>
+
+      {% elif ev.status == "failed" %}
+        <p role="alert">Сталася помилка під час оцінювання. Спробуйте ще раз.</p>
+        <button id="btn-eval" class="contrast" data-url="{% url 'practice_evaluate' s.uuid %}">Повторити оцінку</button>
+
+      {% else %} {# pending #}
+        <p>Оцінювання у черзі… Ви можете запустити його прямо зараз.</p>
+        <button id="btn-eval" class="secondary" data-url="{% url 'practice_evaluate' s.uuid %}">Оцінити</button>
+      {% endif %}
+
+    {% else %}
+      <p>Оцінювання ще не виконувалося.</p>
+      <button id="btn-eval" class="secondary" data-url="{% url 'practice_evaluate' s.uuid %}">Оцінити</button>
+    {% endif %}
+  </article>
+
+  <!-- Тексти учасника -->
+  <article class="card">
+    <header><strong>Фіналізрваний документ</strong></header>
+    <div class="prose">{{ compiled|format_outline }}</div>
+  </article>
+
+  <div class="actions align-end">
+    <button id="btn-print" class="secondary">Print / PDF</button>
+    <a href="{% url 'practice_index' %}" class="secondary">Повернутися до тренажера</a>
+  </div>
+  <div id="result-root" data-elapsed="{{ elapsed_sec|default:'' }}" hidden></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/practice_result.js' %}"></script>
+{% endblock %}

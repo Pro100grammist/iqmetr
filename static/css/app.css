@@ -288,3 +288,29 @@ textarea:focus {
     font-weight: 700;
     margin-bottom: 6px;
 }
+
+/* ====== General style for typed text ====== */
+
+.prose {
+    text-align: justify;
+    line-height: 1.6;
+    hyphens: auto;
+    /* для м'яких переносів (працює краще з <html lang="uk">) */
+    word-wrap: break-word;
+}
+
+/* Для <pre> якщо десь використовуєш */
+pre.prose {
+    white-space: pre-wrap;
+    text-align: justify;
+}
+
+/* Центрування заголовків/рядків */
+.center {
+    text-align: center;
+}
+
+/* Візуальний акцент для капсу (необов'язково) */
+.caps {
+    letter-spacing: 0.5px;
+}

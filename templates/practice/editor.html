@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Тренажер — редактор{% endblock %}
+
+{% block head %}
+  <!-- Pico CSS (лише для цієї сторінки) -->
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css">
+  <!-- У тренажері прогрес-бар не використовується, лишаємо тільки таймер -->
+  <style>
+    .testbar .progress-wrap { display: none; }
+    .editor-grid { display: grid; gap: 1rem; }
+    .counter { font-size: .9em; opacity: .8; }
+    textarea { min-height: 220px; }
+    mark { background: transparent; font-weight: 600; }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">Зошит із практичним завданням</h1>
+
+  <!-- дані для JS-автозбереження та таймера -->
+  <div id="practice-root"
+       data-session="{{ s.uuid }}"
+       data-remaining="{{ remaining }}"
+       data-autosave="{% url 'practice_autosave' s.uuid %}"
+       data-eval="{% url 'practice_evaluate' s.uuid %}">
+  </div>
+
+  <!-- Умова/дані справи -->
+  <article class="card">
+    <header><strong>Завдання: {{ task.title }}</strong></header>
+    {% if s.spec == 'civil' %}
+      {% if task.intro_text %}<p><mark></mark> {{ task.intro_text|linebreaksbr }}</p>{% endif %}
+      {% if task.descriptive_text %}<p><mark></mark> {{ task.descriptive_text|linebreaksbr }}</p>{% endif %}
+      {% if task.partial_motivation_text %}<p><mark></mark> {{ task.partial_motivation_text|linebreaksbr }}</p>{% endif %}
+    {% else %}
+      {% if task.facts_text %}<p><mark>Фабула:</mark> {{ task.facts_text|linebreaksbr }}</p>{% endif %}
+      {% if task.model_intro_text %}<p><mark></mark> {{ task.model_intro_text|linebreaksbr }}</p>{% endif %}
+    {% endif %}
+  </article>
+
+  <!-- Редактор -->
+  <form id="finish-form" method="post" action="{% url 'practice_finish' s.uuid %}" class="editor-grid">
+    {% csrf_token %}
+
+    <article class="card">
+      <label for="motivation"><strong>Мотивувальна частина</strong></label>
+      <textarea id="motivation" name="motivation" autocomplete="off" spellcheck="false">{{ s.motivation_text }}</textarea>
+      <small class="counter">Слів: <span id="words-mot">0</span></small>
+    </article>
+
+    <article class="card">
+      <label for="resolution"><strong>Резолютивна частина</strong></label>
+      <textarea id="resolution" name="resolution" autocomplete="off" spellcheck="false">{{ s.resolution_text }}</textarea>
+      <small class="counter">Слів: <span id="words-res">0</span></small>
+    </article>
+
+    <div class="actions align-end">
+      <button id="btn-eval" type="button" class="secondary">Оцінити AI</button>
+      <button type="submit" class="contrast">Завершити</button>
+    </div>
+    {% if DEBUG %}
+      <p class="muted">Режим розробки: вставка з буфера дозволена. Відповідь зберігається автоматично.</p>
+    {% else %}
+      <p class="muted">Вставка тексту (paste/drag&drop) вимкнена. Відповідь зберігається автоматично.</p>
+    {% endif %}
+  </form>
+{% endblock %}
+
+{% block scripts %}
+  <!-- JS автозбереження/таймер/анти-paste (той, що ми обговорювали як practice_editor.js) -->
+  <script src="{% static 'js/practice_editor.js' %}"></script>
+{% endblock %}

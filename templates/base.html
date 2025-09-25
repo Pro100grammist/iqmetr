@@ -19,7 +19,7 @@
   </script>
   {% block head %}{% endblock %}
 </head>
-<body>
+<body data-debug="{{ DEBUG|yesno:'true,false' }}">
 
 <!-- Top site header (brand + nav) -->
 <header class="site-header">
@@ -27,6 +27,7 @@
     <div class="brand">🧠 iqmetr</div>
     <nav class="nav">
       <a href="{% url 'start' %}">Головна</a>
+      <a href="{% url 'practice_index' %}">Тренажер</a>
       <a href="{% url 'rules' %}">Правила</a>
       <a href="/admin/">Адмінка</a>
     </nav>
@@ -58,6 +59,12 @@
 </footer>
 
 {% block scripts %}{% endblock %}
+<script src="{% static 'js/editor.js' %}"></script>
+<script>
+  window.metricConfig = Object.assign({}, window.metricConfig, {
+    collectUrl: "{% url 'metrics_collect' %}"
+  });
+</script>
 <script src="{% static 'js/metric_scripts.js' %}"></script>
 </body>
 </html>
