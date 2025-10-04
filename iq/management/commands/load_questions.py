@@ -20,15 +20,18 @@ class Command(BaseCommand):
         for item in data:
             q = Question.objects.create(
                 number=item["number"],
-                text=item["text"],
+                text=item.get("text", ""),
                 difficulty=item["difficulty"],
                 score=Decimal(item.get("score", "1.22")),
                 is_active=item.get("is_active", True),
+                task_type=item.get("task_type", "verbal"),
+                image_url=item.get("image", ""),
             )
             for a in item["answers"]:
                 Answer.objects.create(
                     question=q,
-                    text=a["text"],
+                    text=a.get("text", ""),
+                    image_url=a.get("image", ""),
                     is_correct=bool(a.get("is_correct", False)),
                 )
             created_q += 1

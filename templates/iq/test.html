@@ -11,23 +11,33 @@
        data-autosave="{% url 'autosave' session.uuid %}"></div>
 
   <form method="post" id="test-form" class="section">{% csrf_token %}
+    <div class="carousel">
     {% for q in questions %}
-      <article class="question" data-qid="{{ q.id }}">
+      <article class="question card slide" data-qid="{{ q.id }}">
         <strong>#{{ forloop.counter }}.</strong> {{ q.text|format_question }}
+        {% if q.task_type == 'abstract' and q.image_url %}
+        <div class="q-media"><img src="{{ q.image_url }}" alt="question {{ forloop.counter }}" /></div>
+        {% endif %}
 
-        <div class="answers">
+        <div class="answers answers-row">
           {% if q.ordered_answers %}
             {% for a in q.ordered_answers %}
-              <label><input type="radio" name="answer_{{ q.id }}" value="{{ a.id }}"> {{ a.text }}</label>
+              <label class="answer-item"><input type="radio" name="answer_{{ q.id }}" value="{{ a.id }}">{% if a.image_url %}<img src="{{ a.image_url }}" alt="option">{% else %} {{ a.text }}{% endif %}</label>
             {% endfor %}
           {% else %}
             {% for a in q.answers.all %}
-              <label><input type="radio" name="answer_{{ q.id }}" value="{{ a.id }}"> {{ a.text }}</label>
+              <label class="answer-item"><input type="radio" name="answer_{{ q.id }}" value="{{ a.id }}">{% if a.image_url %}<img src="{{ a.image_url }}" alt="option">{% else %} {{ a.text }}{% endif %}</label>
             {% endfor %}
           {% endif %}
         </div>
       </article>
     {% endfor %}
+    </div>
+
+    <div class="carousel-nav">
+      <button type="button" class="nav-btn prev" aria-label="Previous">&#8249;</button>
+      <button type="button" class="nav-btn next" aria-label="Next">&#8250;</button>
+    </div>
 
     <div class="actions">
       <button class="btn" type="submit" name="finish_now" value="1">Завершити тест</button>

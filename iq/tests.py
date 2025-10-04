@@ -53,7 +53,7 @@ class TimeoutTests(TestCase):
             Answer.objects.create(question=q, text=f"A{i}", is_correct=(i == 0))
         s = TestSession.objects.create(name="T", age=30, question_ids=[q.id])
         # Застеримо сесію як прострочену
-        s.started_at = timezone.now() - timedelta(minutes=21)
+        s.started_at = timezone.now() - timedelta(minutes=31)
         s.save(update_fields=["started_at"])
         url = reverse("test", kwargs={"session_uuid": s.uuid})
         resp = self.client.get(url, follow=False)

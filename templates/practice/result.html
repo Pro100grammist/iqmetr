@@ -52,6 +52,11 @@
 
       {% if ev.status == "done" %}
         <p><strong>Підсумковий бал:</strong> {{ ev.total }} / {{ s.task.max_score }}</p>
+        <p class="muted">
+          Модель оцінювання: {{ ev.model_name|default:'—' }}
+          {% if ev.scores.rubric.name %}· Рубрика: {{ ev.scores.rubric.name }}{% endif %}
+          {% if ev.scores.rubric.version %}(версія {{ ev.scores.rubric.version }}){% endif %}
+        </p>
 
         {% if ev.scores.groups %}
           {% for g in ev.scores.groups %}
@@ -117,7 +122,9 @@
     <button id="btn-print" class="secondary">Print / PDF</button>
     <a href="{% url 'practice_index' %}" class="secondary">Повернутися до тренажера</a>
   </div>
-  <div id="result-root" data-elapsed="{{ elapsed_sec|default:'' }}" hidden></div>
+  <div id="result-root" data-elapsed="{{ elapsed_sec|default:'' }}" data-session="{{ s.uuid }}" hidden></div>
+  <div id="metrics-endpoints" data-collect-url="{% url 'metrics_collect' %}"></div>
+
 {% endblock %}
 
 {% block scripts %}

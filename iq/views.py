@@ -14,7 +14,7 @@ from .models import Question, Answer, TestSession, Response
 from metrics.models import TestCompletion
 from metrics.utils import ip_hash as ip_hash_fn
 
-TEST_QUESTION_COUNT = 30
+TEST_QUESTION_COUNT = 40
 TEST_DURATION_SECONDS = 20 * 60  # 20 хвилин
 
 
@@ -63,7 +63,7 @@ def rules(request):
             )
         return redirect("test", session_uuid=session.uuid)
 
-    return render(request, "iq/rules.html", {"duration": TEST_DURATION_SECONDS})
+    return render(request, "iq/rules.html", {"duration": TEST_DURATION_SECONDS, "total": TEST_QUESTION_COUNT})
 
 
 def test_view(request, session_uuid):
@@ -252,3 +252,6 @@ def autosave(request, session_uuid):
     return JsonResponse(
         {"ok": True, "answered": answered_count, "remaining": remaining}
     )
+
+# Override: 30-minute duration
+TEST_DURATION_SECONDS = 30 * 60

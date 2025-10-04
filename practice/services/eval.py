@@ -178,7 +178,12 @@ def _postprocess_scores(rubric: Dict[str, Any], data: Dict[str, Any]) -> Dict[st
 
 
 def _call_openai(messages: List[Dict[str, str]], model: str, timeout: int) -> Dict[str, Any]:
-    url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1/chat/completions")
+    base_url = os.getenv("OPENAI_BASE_URL")
+    if base_url:
+        base_url = base_url.rstrip("/")
+        url = f"{base_url}/chat/completions"
+    else:
+        url = "https://api.openai.com/v1/chat/completions"
     key = os.getenv("OPENAI_API_KEY")
     if not key:
         raise RuntimeError("OPENAI_API_KEY is not set")

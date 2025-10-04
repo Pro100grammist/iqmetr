@@ -37,6 +37,34 @@
     }
     tick();
 
+    // Carousel logic: one question per screen with prev/next controls
+    const slides = Array.from(document.querySelectorAll('.carousel .slide'));
+    const prevBtn = document.querySelector('.carousel-nav .prev');
+    const nextBtn = document.querySelector('.carousel-nav .next');
+    let current = 0;
+
+    function showSlide(idx) {
+        if (!slides.length) return;
+        current = Math.max(0, Math.min(idx, slides.length - 1));
+        slides.forEach((el, i) => {
+            if (i === current) {
+                el.style.display = '';
+                el.classList.add('active');
+            } else {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            }
+        });
+        if (prevBtn) prevBtn.disabled = current === 0;
+        if (nextBtn) nextBtn.disabled = current === slides.length - 1;
+    }
+
+    if (slides.length) {
+        showSlide(0);
+        if (prevBtn) prevBtn.addEventListener('click', () => showSlide(current - 1));
+        if (nextBtn) nextBtn.addEventListener('click', () => showSlide(current + 1));
+    }
+
     function updateProgress() {
         const answered = new Set();
         document.querySelectorAll(".question").forEach((q) => {

@@ -18,7 +18,12 @@
     const csrftoken = getCookie("csrftoken");
 
     // ---- Заборона вставки/drag&drop (крім DEBUG) ----
-    const isDebug = (document.body && document.body.dataset.debug === "true");
+    const debugAttr = String(
+        document.body && document.body.dataset && document.body.dataset.debug
+            ? document.body.dataset.debug
+            : ""
+    ).toLowerCase();
+    const isDebug = ["true", "1", "yes", "on"].includes(debugAttr);
     const allowPaste = isDebug || (document.body && document.body.dataset.allowPaste === "true");
     if (!allowPaste) {
         const blockPaste = (e) => {

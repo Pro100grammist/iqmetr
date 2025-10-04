@@ -7,5 +7,7 @@ const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
 const ss = String(seconds % 60).padStart(2, "0");
 
 document.getElementById("progress-inner").style.width = "0%";
-document.getElementById("progress-text").textContent = "0 / 30";
+const rulesRoot = document.getElementById("iq-rules");
+const total = rulesRoot ? parseInt(rulesRoot.dataset.total || "40", 10) : 40;
+document.getElementById("progress-text").textContent = `0 / ${total}`;
 document.getElementById("timer").textContent = `${mm}:${ss}`;

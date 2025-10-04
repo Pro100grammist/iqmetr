@@ -17,6 +17,17 @@ class Question(models.Model):
 
     number = models.PositiveIntegerField()
     text = models.TextField()
+    # New: question type and image support
+    TYPE_VERBAL = "verbal"
+    TYPE_LOGICAL = "logical"
+    TYPE_ABSTRACT = "abstract"
+    TASK_TYPE_CHOICES = [
+        (TYPE_VERBAL, "verbal"),
+        (TYPE_LOGICAL, "logical"),
+        (TYPE_ABSTRACT, "abstract"),
+    ]
+    task_type = models.CharField(max_length=10, choices=TASK_TYPE_CHOICES, default=TYPE_VERBAL)
+    image_url = models.CharField(max_length=500, blank=True, default="")
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES)
     score = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal("1.22"))
     is_active = models.BooleanField(default=True)
@@ -32,7 +43,8 @@ class Answer(models.Model):
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name="answers"
     )
-    text = models.CharField(max_length=500)
+    text = models.CharField(max_length=500, blank=True, default="")
+    image_url = models.CharField(max_length=500, blank=True, default="")
     is_correct = models.BooleanField(default=False)
 
     def __str__(self):
