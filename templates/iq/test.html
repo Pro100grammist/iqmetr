@@ -3,7 +3,7 @@
 {% load static %}
 {% block title %}Тест — iqmetr{% endblock %}
 {% block content %}
-  <h1 class="page-title">Тест</h1>
+  <h1 class="page-title center">Тест №{{ session.id }}</h1>
 
   <div id="iq-test"
        data-remaining="{{ remaining|default:0 }}"
@@ -14,7 +14,8 @@
     <div class="carousel">
     {% for q in questions %}
       <article class="question card slide" data-qid="{{ q.id }}">
-        <strong>#{{ forloop.counter }}.</strong> {{ q.text|format_question }}
+        <div><strong>#{{ q.number }}.</strong></div>
+        <div class="q-text prose">{{ q.text|format_question }}</div>
         {% if q.task_type == 'abstract' and q.image_url %}
         <div class="q-media"><img src="{{ q.image_url }}" alt="question {{ forloop.counter }}" /></div>
         {% endif %}
@@ -39,15 +40,12 @@
       <button type="button" class="nav-btn next" aria-label="Next">&#8250;</button>
     </div>
 
-    <div class="actions">
+    <div class="actions center">
       <button class="btn" type="submit" name="finish_now" value="1">Завершити тест</button>
-      <button class="btn secondary" type="submit">Зберегти проміжні відповіді</button>
-      <a class="btn ghost" href="{% url 'rules' %}">Назад до правил</a>
     </div>
   </form>
-
-  <p class="muted">Ви можете зберігати відповіді під час проходження. Після завершення результат буде підраховано.</p>
 {% endblock %}
 {% block scripts %}
   <script src="{% static 'js/test.js' %}"></script>
 {% endblock %}
+

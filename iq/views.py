@@ -52,8 +52,12 @@ def rules(request):
                 },
             )
 
-        random.shuffle(q_ids)
-        selected = q_ids[:TEST_QUESTION_COUNT]
+        # Show questions in their defined numeric order (1..N)
+        selected = list(
+            Question.objects.filter(is_active=True)
+            .order_by("number")
+            .values_list("id", flat=True)[:TEST_QUESTION_COUNT]
+        )
 
         with transaction.atomic():
             session = TestSession.objects.create(

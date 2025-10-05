@@ -296,6 +296,11 @@ textarea:focus {
     align-items: center;
 }
 
+/* Centered variant for single primary action */
+.actions.center {
+    justify-content: center;
+}
+
 /* Utilities */
 .grid {
     display: grid;
